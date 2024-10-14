@@ -1,11 +1,11 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
+use std::fmt::Display;
 
 pub struct Heap<T>
 where
@@ -38,6 +38,19 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        if self.count == 0 {
+            self.items = vec![value];
+        } else {
+            self.items.push(value);
+        }
+
+        self.count += 1;
+        let mut idx = self.count;
+
+        while idx > 1 && (self.comparator)(&self.items[idx - 1], &self.items[idx / 2 - 1]) {
+            self.items.swap(idx - 1, idx / 2 - 1);
+            idx /= 2;
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +71,19 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        0
+    }
+}
+
+impl<T> Heap<T>
+where
+    T: Default + Display,
+{
+    fn show(&self) {
+        for v in &self.items {
+            print!("{} ", v);
+        }
+        println!("====={}", self.count);
     }
 }
 
@@ -85,7 +110,27 @@ where
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        if self.count == 0 {
+            return None;
+        }
+        self.items.swap(0, self.count - 1);
+        self.count -= 1;
+
+        let mut idx = 1;
+        while idx * 2 <= self.count {
+            let mut t = self.left_child_idx(idx);
+            if t + 1 <= self.count && (self.comparator)(&self.items[t + 1 - 1], &self.items[t - 1])
+            {
+                t += 1;
+            }
+            if (self.comparator)(&self.items[idx - 1], &self.items[t - 1]) {
+                break;
+            }
+            self.items.swap(t - 1, idx - 1);
+            idx = t;
+        }
+
+        Some(self.items.remove(self.count))
     }
 }
 
